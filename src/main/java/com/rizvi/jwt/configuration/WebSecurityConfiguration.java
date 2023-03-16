@@ -18,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -32,7 +31,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private JwtRequestFilter jwtRequestFilter;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private UserDetailsService jwtService;
+
+
     @Bean
     @Override
      public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -43,7 +44,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors();
         http.csrf().disable()
-                .authorizeRequests().antMatchers("")
+                .authorizeRequests().antMatchers("/authenticate")
                 .permitAll().antMatchers(HttpHeaders.ALLOW).permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -59,8 +60,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
 
         }
-      public void configureGlobal(AuthenticationManagerBuilder  authenticationManagerBuilder) throws Exception {
-             authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder  authenticationManagerBuilder) throws Exception {
+             authenticationManagerBuilder.userDetailsService(jwtService).passwordEncoder(passwordEncoder());
         }
 
 
